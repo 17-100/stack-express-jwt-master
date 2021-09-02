@@ -56,6 +56,11 @@ const books = [
     },
 ]
 
+app.get('/', (req, res) => {
+    var someStr = "You need to authenticate in order to access most functionality of this book server.";
+    res.send(someStr);
+  })
+
 app.get('/books', authenticateJWT, (req, res) => {
     res.json(books);
 });
@@ -74,6 +79,22 @@ app.post('/books', authenticateJWT, (req, res) => {
     res.send('book added successfully');
 });
 
+app.get('/books/remove', authenticateJWT, (req, res) => {
+    const { role } = req.user;
+
+    if (role !== 'admin') {
+        return res.sendStatus(403)
+      }
+
+    const reqBook = req.body;
+    const title = reqBook.title;
+    var index = books.findIndex(book => book.title === title);
+    books.splice(index, 1);
+    res.send(`books with name: ` + `${title}` + ` removed successfully`);
+})
+
 app.listen(4000, () => {
     console.log('Books service started on port 4000');
 });
+
+
